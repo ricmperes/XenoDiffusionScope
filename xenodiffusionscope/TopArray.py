@@ -10,6 +10,7 @@ from tqdm import tqdm
 # Plots should be handled in separate Plotter file.
 
 class TopArray:
+    '''Every TPC needs a readout. Ours is, by default, a top array of SiPMs.'''
     def __init__(self, tpc, mesh,model,path_to_patterns,path_to_model):
         self.model = model
         self.tpc = tpc
@@ -21,6 +22,7 @@ class TopArray:
         
         
     def make_results_grid(self, x_step=1, y_step=1):
+        '''Define the grid to discritize the LCE pattern.'''
         self.grid_x_step = x_step
         self.grid_y_step = y_step
         self.grid_x_max = self.tpc.radius
@@ -40,6 +42,8 @@ class TopArray:
         return None
     
     def load_top_array(self):
+        '''Load the top array from file.
+        **THIS USES PICKLE, IT SHOULD BE CHANGED TO SOMETHING MORE ROBUST**.'''
         with open('%s/%s.pck'%(self.path_to_model, self.model), 'rb') as file:
             self.sensors = pickle.load(file)
         self.n_sensors = len(self.sensors)
@@ -47,6 +51,9 @@ class TopArray:
         return None
     
     def plot_toparray(self,ax, pe_in_sensors = False):
+        '''Plot the top array and, optionally, fill with pattern from 
+        results.'''
+
         ax.set_aspect('equal')
         for _quad_i,_quad in enumerate(self.sensors):
             xy = (_quad[0],_quad[2])
@@ -84,16 +91,19 @@ class TopArray:
         ax.add_patch(Circle((0,0),75, color = 'r',fill = False))
         return ax
     
-    def integrate_in_quad(self,quad):
+    def integrate_in_photosensor(self,quad):
+        '''Integrate the PEs in a given photosensor.'''
         ans = self.results_interp.integral(quad[0],quad[1],quad[2],quad[3])
         return ans
     
     def load_pattern(self, hex_id):
+        '''Load the pattern for a given hex focus point.'''
         with open(self.path_to_patterns + 'hex_v0_%d.pck'%hex_id, 'rb') as file:
             pattern = pickle.load(file)
         return pattern
     
     def load_all_patterns(self, all_at_once = False):
+        '''Load all the patterns for all the hex focus points.'''
         if all_at_once:
             with open(self.path_to_patterns+'all_paterns.pck', 'rb') as file:
                 patterns = pickle.load(file)
@@ -135,7 +145,8 @@ class TopArray:
         return None
     
     def n_pe_in_sensors(self):
-        pe_in_sensors = np.apply_along_axis(self.integrate_in_quad,
+        '''Integrate the PEs in each photosensor.'''
+        pe_in_sensors = np.apply_along_axis(self.integrate_in_photosensor,
                                           1, 
                                           self.sensors)
         self.pe_in_sensors = pe_in_sensors

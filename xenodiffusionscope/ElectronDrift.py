@@ -70,6 +70,9 @@ class ElectronDrift:
         return x,y,z
     
     def drift_full_pulse(self, lamp_end_time = 6):
+        '''Drift all the full initial pulse of the lamp as a single slice.
+        '''
+        
         delta_t_lamp = self.lamp.delta_t_lamp
         times_lamp = np.arange(0,8, self.lamp.delta_t_lamp)
         

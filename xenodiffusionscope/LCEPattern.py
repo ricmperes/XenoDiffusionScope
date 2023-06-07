@@ -49,6 +49,8 @@ class LCEPattern:
         return final_pos
     
     def get_xy_on_circ_array(self, final_pos):
+        '''Return the x,y positions of the electron cluds ending inside the 
+        radius of the TPC.'''
         final_r = TPC.get_r(final_pos[:,0],final_pos[:,1])
         mask_r = final_r < self.r_max
         final_pos_array = final_pos[mask_r]
@@ -69,6 +71,8 @@ class LCEPattern:
     
 
     def print_stats_of_hits(self, hits, n_traces):
+        '''Print statistics of the hits.'''
+
         print('Initial number of photons: %s'%n_traces)
         print('Number of photons hit: '+
               '%s (%.2f%% of produced, %.2f of '+
@@ -78,6 +82,9 @@ class LCEPattern:
         return None
     
     def get_pattern_density_hist2d(self, pos):
+        '''Calculate the density of photons in x,y bins. Result is a 2D 
+        histogram, already normalised to the bin area and number of initial 
+        photons.'''
         
         x_min = y_min = -np.ceil(self.r_max*1.1)
         x_max = y_max = np.ceil(self.r_max*1.1)
@@ -127,12 +134,14 @@ class LCEPattern:
         return interp2s
     
     def make_pattern_from_pos(self,x0,y0,z0):
+        '''Merger function to get the pattern from a given x,y,z position.'''
         toy_events = self.get_hits_on_circ_array(x0,y0,z0)
         pattern = self.make_pattern_density(toy_events)
         return pattern
 
     @staticmethod
     def plot_pattern(tpc,pattern, hex_id):
+        '''Plot the pattern from a given focusing point.'''
         fig,ax = plt.subplots(1,1,figsize = (9,9), dpi = 100)
         ax.set_title('Pattern interpolation\n(spline, k=3)')
         _x = np.arange(-80,80,1)
