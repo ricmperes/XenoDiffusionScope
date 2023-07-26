@@ -47,10 +47,14 @@ class LCEPattern:
         self.TPC = TPC
         self.z_anode = TPC.z_anode
         self.r_max = TPC.radius
+        # Since some sensors stick out of the array, we need to consider
+        # photons ending outside the nominal radius of the TPC in the pattern.
+        self.r_pattern_max = 100
         
         #self.load_patterns()
     
-    def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, smooth_pattern, force_traces = False):
+    def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, 
+                             smooth_pattern, force_traces = False):
         &#39;&#39;&#39;
         Call this function to define the pattern calculation properties.
         &#39;&#39;&#39;
@@ -78,9 +82,9 @@ class LCEPattern:
     
     def get_xy_on_circ_array(self, final_pos):
         &#39;&#39;&#39;Return the x,y positions of the electron cluds ending inside the 
-        radius of the TPC.&#39;&#39;&#39;
+        radius to considere for the pattern (TPC + sensors outside).&#39;&#39;&#39;
         final_r = TPC.get_r(final_pos[:,0],final_pos[:,1])
-        mask_r = final_r &lt; self.r_max
+        mask_r = final_r &lt; self.r_pattern_max
         final_pos_array = final_pos[mask_r]
         return final_pos_array
     
@@ -114,8 +118,8 @@ class LCEPattern:
         histogram, already normalised to the bin area and number of initial 
         photons.&#39;&#39;&#39;
         
-        x_min = y_min = -np.ceil(self.r_max*1.1)
-        x_max = y_max = np.ceil(self.r_max*1.1)
+        x_min = y_min = -np.ceil(self.r_pattern_max*1.1)
+        x_max = y_max = np.ceil(self.r_pattern_max*1.1)
         
         x_bin_sides = np.arange(x_min,x_max+self.x_bin_step*0.1,self.x_bin_step)
         y_bin_sides = np.arange(y_min,y_max+self.x_bin_step*0.1,self.y_bin_step)
@@ -165,28 +169,7 @@ class LCEPattern:
         &#39;&#39;&#39;Merger function to get the pattern from a given x,y,z position.&#39;&#39;&#39;
         toy_events = self.get_hits_on_circ_array(x0,y0,z0)
         pattern = self.make_pattern_density(toy_events)
-        return pattern
-
-    @staticmethod
-    def plot_pattern(tpc,pattern, hex_id):
-        &#39;&#39;&#39;Plot the pattern from a given focusing point.&#39;&#39;&#39;
-        fig,ax = plt.subplots(1,1,figsize = (9,9), dpi = 100)
-        ax.set_title(&#39;Pattern interpolation\n(spline, k=3)&#39;)
-        _x = np.arange(-80,80,1)
-        _y = np.arange(-80,80,1)
-        _xx,_yy = np.meshgrid(_x,_y, indexing=&#39;ij&#39;)
-        _rr = TPC.get_r(_xx,_yy)
-        _xx = _xx[_rr &lt; tpc.r_max]
-        _yy = _yy[_rr &lt; tpc.r_max]
-        _zz = pattern.ev(_xx,_yy)
-        interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = &#39;s&#39;,
-                                  s = 3, vmin = -6.2)
-
-        ax.add_patch(Circle((0,0),75, color = &#39;r&#39;,fill = False, linewidth = 1, ls =&#39;--&#39;))
-        ax.set_aspect(&#39;equal&#39;)
-        fig.colorbar(interpolated, ax = ax)
-
-        plt.savefig(&#39;figures/patterns/hex_v0_%d&#39; %hex_id)</code></pre>
+        return pattern</code></pre>
 </details>
 </section>
 <section>
@@ -219,10 +202,14 @@ class LCEPattern:
         self.TPC = TPC
         self.z_anode = TPC.z_anode
         self.r_max = TPC.radius
+        # Since some sensors stick out of the array, we need to consider
+        # photons ending outside the nominal radius of the TPC in the pattern.
+        self.r_pattern_max = 100
         
         #self.load_patterns()
     
-    def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, smooth_pattern, force_traces = False):
+    def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, 
+                             smooth_pattern, force_traces = False):
         &#39;&#39;&#39;
         Call this function to define the pattern calculation properties.
         &#39;&#39;&#39;
@@ -250,9 +237,9 @@ class LCEPattern:
     
     def get_xy_on_circ_array(self, final_pos):
         &#39;&#39;&#39;Return the x,y positions of the electron cluds ending inside the 
-        radius of the TPC.&#39;&#39;&#39;
+        radius to considere for the pattern (TPC + sensors outside).&#39;&#39;&#39;
         final_r = TPC.get_r(final_pos[:,0],final_pos[:,1])
-        mask_r = final_r &lt; self.r_max
+        mask_r = final_r &lt; self.r_pattern_max
         final_pos_array = final_pos[mask_r]
         return final_pos_array
     
@@ -286,8 +273,8 @@ class LCEPattern:
         histogram, already normalised to the bin area and number of initial 
         photons.&#39;&#39;&#39;
         
-        x_min = y_min = -np.ceil(self.r_max*1.1)
-        x_max = y_max = np.ceil(self.r_max*1.1)
+        x_min = y_min = -np.ceil(self.r_pattern_max*1.1)
+        x_max = y_max = np.ceil(self.r_pattern_max*1.1)
         
         x_bin_sides = np.arange(x_min,x_max+self.x_bin_step*0.1,self.x_bin_step)
         y_bin_sides = np.arange(y_min,y_max+self.x_bin_step*0.1,self.y_bin_step)
@@ -337,28 +324,7 @@ class LCEPattern:
         &#39;&#39;&#39;Merger function to get the pattern from a given x,y,z position.&#39;&#39;&#39;
         toy_events = self.get_hits_on_circ_array(x0,y0,z0)
         pattern = self.make_pattern_density(toy_events)
-        return pattern
-
-    @staticmethod
-    def plot_pattern(tpc,pattern, hex_id):
-        &#39;&#39;&#39;Plot the pattern from a given focusing point.&#39;&#39;&#39;
-        fig,ax = plt.subplots(1,1,figsize = (9,9), dpi = 100)
-        ax.set_title(&#39;Pattern interpolation\n(spline, k=3)&#39;)
-        _x = np.arange(-80,80,1)
-        _y = np.arange(-80,80,1)
-        _xx,_yy = np.meshgrid(_x,_y, indexing=&#39;ij&#39;)
-        _rr = TPC.get_r(_xx,_yy)
-        _xx = _xx[_rr &lt; tpc.r_max]
-        _yy = _yy[_rr &lt; tpc.r_max]
-        _zz = pattern.ev(_xx,_yy)
-        interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = &#39;s&#39;,
-                                  s = 3, vmin = -6.2)
-
-        ax.add_patch(Circle((0,0),75, color = &#39;r&#39;,fill = False, linewidth = 1, ls =&#39;--&#39;))
-        ax.set_aspect(&#39;equal&#39;)
-        fig.colorbar(interpolated, ax = ax)
-
-        plt.savefig(&#39;figures/patterns/hex_v0_%d&#39; %hex_id)</code></pre>
+        return pattern</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -386,37 +352,6 @@ def get_xy_on_plane(cls,x0,y0,z0,directions,z_prime):
     return final_pos</code></pre>
 </details>
 </dd>
-<dt id="xenodiffusionscope.LCEPattern.LCEPattern.plot_pattern"><code class="name flex">
-<span>def <span class="ident">plot_pattern</span></span>(<span>tpc, pattern, hex_id)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Plot the pattern from a given focusing point.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def plot_pattern(tpc,pattern, hex_id):
-    &#39;&#39;&#39;Plot the pattern from a given focusing point.&#39;&#39;&#39;
-    fig,ax = plt.subplots(1,1,figsize = (9,9), dpi = 100)
-    ax.set_title(&#39;Pattern interpolation\n(spline, k=3)&#39;)
-    _x = np.arange(-80,80,1)
-    _y = np.arange(-80,80,1)
-    _xx,_yy = np.meshgrid(_x,_y, indexing=&#39;ij&#39;)
-    _rr = TPC.get_r(_xx,_yy)
-    _xx = _xx[_rr &lt; tpc.r_max]
-    _yy = _yy[_rr &lt; tpc.r_max]
-    _zz = pattern.ev(_xx,_yy)
-    interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = &#39;s&#39;,
-                              s = 3, vmin = -6.2)
-
-    ax.add_patch(Circle((0,0),75, color = &#39;r&#39;,fill = False, linewidth = 1, ls =&#39;--&#39;))
-    ax.set_aspect(&#39;equal&#39;)
-    fig.colorbar(interpolated, ax = ax)
-
-    plt.savefig(&#39;figures/patterns/hex_v0_%d&#39; %hex_id)</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
@@ -429,7 +364,8 @@ def plot_pattern(tpc,pattern, hex_id):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, smooth_pattern, force_traces = False):
+<pre><code class="python">def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, 
+                         smooth_pattern, force_traces = False):
     &#39;&#39;&#39;
     Call this function to define the pattern calculation properties.
     &#39;&#39;&#39;
@@ -483,8 +419,8 @@ photons.</p></div>
     histogram, already normalised to the bin area and number of initial 
     photons.&#39;&#39;&#39;
     
-    x_min = y_min = -np.ceil(self.r_max*1.1)
-    x_max = y_max = np.ceil(self.r_max*1.1)
+    x_min = y_min = -np.ceil(self.r_pattern_max*1.1)
+    x_max = y_max = np.ceil(self.r_pattern_max*1.1)
     
     x_bin_sides = np.arange(x_min,x_max+self.x_bin_step*0.1,self.x_bin_step)
     y_bin_sides = np.arange(y_min,y_max+self.x_bin_step*0.1,self.y_bin_step)
@@ -515,16 +451,16 @@ photons.</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the x,y positions of the electron cluds ending inside the
-radius of the TPC.</p></div>
+radius to considere for the pattern (TPC + sensors outside).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_xy_on_circ_array(self, final_pos):
     &#39;&#39;&#39;Return the x,y positions of the electron cluds ending inside the 
-    radius of the TPC.&#39;&#39;&#39;
+    radius to considere for the pattern (TPC + sensors outside).&#39;&#39;&#39;
     final_r = TPC.get_r(final_pos[:,0],final_pos[:,1])
-    mask_r = final_r &lt; self.r_max
+    mask_r = final_r &lt; self.r_pattern_max
     final_pos_array = final_pos[mask_r]
     return final_pos_array</code></pre>
 </details>
@@ -633,7 +569,6 @@ Returns either the interpolative function.</p>
 <li><code><a title="xenodiffusionscope.LCEPattern.LCEPattern.get_xy_on_plane" href="#xenodiffusionscope.LCEPattern.LCEPattern.get_xy_on_plane">get_xy_on_plane</a></code></li>
 <li><code><a title="xenodiffusionscope.LCEPattern.LCEPattern.make_pattern_density" href="#xenodiffusionscope.LCEPattern.LCEPattern.make_pattern_density">make_pattern_density</a></code></li>
 <li><code><a title="xenodiffusionscope.LCEPattern.LCEPattern.make_pattern_from_pos" href="#xenodiffusionscope.LCEPattern.LCEPattern.make_pattern_from_pos">make_pattern_from_pos</a></code></li>
-<li><code><a title="xenodiffusionscope.LCEPattern.LCEPattern.plot_pattern" href="#xenodiffusionscope.LCEPattern.LCEPattern.plot_pattern">plot_pattern</a></code></li>
 <li><code><a title="xenodiffusionscope.LCEPattern.LCEPattern.print_stats_of_hits" href="#xenodiffusionscope.LCEPattern.LCEPattern.print_stats_of_hits">print_stats_of_hits</a></code></li>
 </ul>
 </li>

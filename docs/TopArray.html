@@ -126,14 +126,14 @@ class TopArray:
     
     def load_pattern(self, hex_id):
         &#39;&#39;&#39;Load the pattern for a given hex focus point.&#39;&#39;&#39;
-        with open(self.path_to_patterns + &#39;hex_v0_%d.pck&#39;%hex_id, &#39;rb&#39;) as file:
+        with open(self.path_to_patterns + &#39;hex_%d.pck&#39;%hex_id, &#39;rb&#39;) as file:
             pattern = pickle.load(file)
         return pattern
     
     def load_all_patterns(self, all_at_once = False):
         &#39;&#39;&#39;Load all the patterns for all the hex focus points.&#39;&#39;&#39;
         if all_at_once:
-            with open(self.path_to_patterns+&#39;all_paterns.pck&#39;, &#39;rb&#39;) as file:
+            with open(self.path_to_patterns+&#39;all_patterns.pck&#39;, &#39;rb&#39;) as file:
                 patterns = pickle.load(file)
             self.patterns = patterns
             return None
@@ -146,6 +146,37 @@ class TopArray:
         
         self.patterns = patterns
         
+        return None
+    
+    def plot_pattern(self, hex_id, save_fig = False):
+        &#39;&#39;&#39;Plot the pattern from a given focusing point.&#39;&#39;&#39;
+
+        if hasattr(self, &#39;patterns&#39;):
+            pattern = self.patterns[hex_id]
+        else:
+            pattern = self.load_pattern(hex_id)
+
+        fig,ax = plt.subplots(1,1,figsize = (9,9))
+        ax.set_title(&#39;Pattern interpolation\n(spline, k=3)&#39;)
+        _x = np.arange(-100,100,1)
+        _y = np.arange(-100,100,1)
+        _xx,_yy = np.meshgrid(_x,_y, indexing=&#39;ij&#39;)
+        _rr = self.tpc.get_r(_xx,_yy)
+        _xx = _xx[_rr &lt; 100]
+        _yy = _yy[_rr &lt; 100]
+        _zz = pattern.ev(_xx,_yy)
+        interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = &#39;s&#39;,
+                                  s = 3, vmin = -6.2)
+
+        ax.add_patch(Circle((0,0),self.tpc.radius, color = &#39;r&#39;,fill = False, 
+                            linewidth = 1, ls =&#39;--&#39;, label = &#39;TPC&#39;))
+        ax.set_aspect(&#39;equal&#39;)
+        ax.legend()
+        fig.colorbar(interpolated, ax = ax)
+        if save_fig:
+            plt.savefig(&#39;figures/patterns/hex_v0_%d&#39; %hex_id)
+        else:
+            plt.show()
         return None
     
     def fill_grid_from_events(self, counts_pe_on_hex):
@@ -290,14 +321,14 @@ class TopArray:
     
     def load_pattern(self, hex_id):
         &#39;&#39;&#39;Load the pattern for a given hex focus point.&#39;&#39;&#39;
-        with open(self.path_to_patterns + &#39;hex_v0_%d.pck&#39;%hex_id, &#39;rb&#39;) as file:
+        with open(self.path_to_patterns + &#39;hex_%d.pck&#39;%hex_id, &#39;rb&#39;) as file:
             pattern = pickle.load(file)
         return pattern
     
     def load_all_patterns(self, all_at_once = False):
         &#39;&#39;&#39;Load all the patterns for all the hex focus points.&#39;&#39;&#39;
         if all_at_once:
-            with open(self.path_to_patterns+&#39;all_paterns.pck&#39;, &#39;rb&#39;) as file:
+            with open(self.path_to_patterns+&#39;all_patterns.pck&#39;, &#39;rb&#39;) as file:
                 patterns = pickle.load(file)
             self.patterns = patterns
             return None
@@ -310,6 +341,37 @@ class TopArray:
         
         self.patterns = patterns
         
+        return None
+    
+    def plot_pattern(self, hex_id, save_fig = False):
+        &#39;&#39;&#39;Plot the pattern from a given focusing point.&#39;&#39;&#39;
+
+        if hasattr(self, &#39;patterns&#39;):
+            pattern = self.patterns[hex_id]
+        else:
+            pattern = self.load_pattern(hex_id)
+
+        fig,ax = plt.subplots(1,1,figsize = (9,9))
+        ax.set_title(&#39;Pattern interpolation\n(spline, k=3)&#39;)
+        _x = np.arange(-100,100,1)
+        _y = np.arange(-100,100,1)
+        _xx,_yy = np.meshgrid(_x,_y, indexing=&#39;ij&#39;)
+        _rr = self.tpc.get_r(_xx,_yy)
+        _xx = _xx[_rr &lt; 100]
+        _yy = _yy[_rr &lt; 100]
+        _zz = pattern.ev(_xx,_yy)
+        interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = &#39;s&#39;,
+                                  s = 3, vmin = -6.2)
+
+        ax.add_patch(Circle((0,0),self.tpc.radius, color = &#39;r&#39;,fill = False, 
+                            linewidth = 1, ls =&#39;--&#39;, label = &#39;TPC&#39;))
+        ax.set_aspect(&#39;equal&#39;)
+        ax.legend()
+        fig.colorbar(interpolated, ax = ax)
+        if save_fig:
+            plt.savefig(&#39;figures/patterns/hex_v0_%d&#39; %hex_id)
+        else:
+            plt.show()
         return None
     
     def fill_grid_from_events(self, counts_pe_on_hex):
@@ -408,7 +470,7 @@ get the final pe pattern in the array.</p></div>
 <pre><code class="python">def load_all_patterns(self, all_at_once = False):
     &#39;&#39;&#39;Load all the patterns for all the hex focus points.&#39;&#39;&#39;
     if all_at_once:
-        with open(self.path_to_patterns+&#39;all_paterns.pck&#39;, &#39;rb&#39;) as file:
+        with open(self.path_to_patterns+&#39;all_patterns.pck&#39;, &#39;rb&#39;) as file:
             patterns = pickle.load(file)
         self.patterns = patterns
         return None
@@ -435,7 +497,7 @@ get the final pe pattern in the array.</p></div>
 </summary>
 <pre><code class="python">def load_pattern(self, hex_id):
     &#39;&#39;&#39;Load the pattern for a given hex focus point.&#39;&#39;&#39;
-    with open(self.path_to_patterns + &#39;hex_v0_%d.pck&#39;%hex_id, &#39;rb&#39;) as file:
+    with open(self.path_to_patterns + &#39;hex_%d.pck&#39;%hex_id, &#39;rb&#39;) as file:
         pattern = pickle.load(file)
     return pattern</code></pre>
 </details>
@@ -506,6 +568,47 @@ get the final pe pattern in the array.</p></div>
                                       self.sensors)
     self.pe_in_sensors = pe_in_sensors
     return np.abs(pe_in_sensors)</code></pre>
+</details>
+</dd>
+<dt id="xenodiffusionscope.TopArray.TopArray.plot_pattern"><code class="name flex">
+<span>def <span class="ident">plot_pattern</span></span>(<span>self, hex_id, save_fig=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot the pattern from a given focusing point.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_pattern(self, hex_id, save_fig = False):
+    &#39;&#39;&#39;Plot the pattern from a given focusing point.&#39;&#39;&#39;
+
+    if hasattr(self, &#39;patterns&#39;):
+        pattern = self.patterns[hex_id]
+    else:
+        pattern = self.load_pattern(hex_id)
+
+    fig,ax = plt.subplots(1,1,figsize = (9,9))
+    ax.set_title(&#39;Pattern interpolation\n(spline, k=3)&#39;)
+    _x = np.arange(-100,100,1)
+    _y = np.arange(-100,100,1)
+    _xx,_yy = np.meshgrid(_x,_y, indexing=&#39;ij&#39;)
+    _rr = self.tpc.get_r(_xx,_yy)
+    _xx = _xx[_rr &lt; 100]
+    _yy = _yy[_rr &lt; 100]
+    _zz = pattern.ev(_xx,_yy)
+    interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = &#39;s&#39;,
+                              s = 3, vmin = -6.2)
+
+    ax.add_patch(Circle((0,0),self.tpc.radius, color = &#39;r&#39;,fill = False, 
+                        linewidth = 1, ls =&#39;--&#39;, label = &#39;TPC&#39;))
+    ax.set_aspect(&#39;equal&#39;)
+    ax.legend()
+    fig.colorbar(interpolated, ax = ax)
+    if save_fig:
+        plt.savefig(&#39;figures/patterns/hex_v0_%d&#39; %hex_id)
+    else:
+        plt.show()
+    return None</code></pre>
 </details>
 </dd>
 <dt id="xenodiffusionscope.TopArray.TopArray.plot_toparray"><code class="name flex">
@@ -588,6 +691,7 @@ results.</p></div>
 <li><code><a title="xenodiffusionscope.TopArray.TopArray.load_top_array" href="#xenodiffusionscope.TopArray.TopArray.load_top_array">load_top_array</a></code></li>
 <li><code><a title="xenodiffusionscope.TopArray.TopArray.make_results_grid" href="#xenodiffusionscope.TopArray.TopArray.make_results_grid">make_results_grid</a></code></li>
 <li><code><a title="xenodiffusionscope.TopArray.TopArray.n_pe_in_sensors" href="#xenodiffusionscope.TopArray.TopArray.n_pe_in_sensors">n_pe_in_sensors</a></code></li>
+<li><code><a title="xenodiffusionscope.TopArray.TopArray.plot_pattern" href="#xenodiffusionscope.TopArray.TopArray.plot_pattern">plot_pattern</a></code></li>
 <li><code><a title="xenodiffusionscope.TopArray.TopArray.plot_toparray" href="#xenodiffusionscope.TopArray.TopArray.plot_toparray">plot_toparray</a></code></li>
 </ul>
 </li>

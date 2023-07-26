@@ -69,8 +69,8 @@ def produce_pattern(input):
     #print(f'Starting hex id: {hex_id}.')
 
     pattern = LCE_object.make_pattern_from_pos(hex_position[0],
-                                                  hex_position[1],
-                                                  hex_position[2])
+                                               hex_position[1],
+                                               hex_position[2])
     pattern_file_name = os.path.join(args.path, 'hex_%d.pck'%hex_id)
     with open(pattern_file_name, 'wb') as file:
         pickle.dump(pattern, file)

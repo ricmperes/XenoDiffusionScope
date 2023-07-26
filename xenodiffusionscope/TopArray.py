@@ -98,14 +98,14 @@ class TopArray:
     
     def load_pattern(self, hex_id):
         '''Load the pattern for a given hex focus point.'''
-        with open(self.path_to_patterns + 'hex_v0_%d.pck'%hex_id, 'rb') as file:
+        with open(self.path_to_patterns + 'hex_%d.pck'%hex_id, 'rb') as file:
             pattern = pickle.load(file)
         return pattern
     
     def load_all_patterns(self, all_at_once = False):
         '''Load all the patterns for all the hex focus points.'''
         if all_at_once:
-            with open(self.path_to_patterns+'all_paterns.pck', 'rb') as file:
+            with open(self.path_to_patterns+'all_patterns.pck', 'rb') as file:
                 patterns = pickle.load(file)
             self.patterns = patterns
             return None
@@ -118,6 +118,37 @@ class TopArray:
         
         self.patterns = patterns
         
+        return None
+    
+    def plot_pattern(self, hex_id, save_fig = False):
+        '''Plot the pattern from a given focusing point.'''
+
+        if hasattr(self, 'patterns'):
+            pattern = self.patterns[hex_id]
+        else:
+            pattern = self.load_pattern(hex_id)
+
+        fig,ax = plt.subplots(1,1,figsize = (9,9))
+        ax.set_title('Pattern interpolation\n(spline, k=3)')
+        _x = np.arange(-100,100,1)
+        _y = np.arange(-100,100,1)
+        _xx,_yy = np.meshgrid(_x,_y, indexing='ij')
+        _rr = self.tpc.get_r(_xx,_yy)
+        _xx = _xx[_rr < 100]
+        _yy = _yy[_rr < 100]
+        _zz = pattern.ev(_xx,_yy)
+        interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = 's',
+                                  s = 3, vmin = -6.2)
+
+        ax.add_patch(Circle((0,0),self.tpc.radius, color = 'r',fill = False, 
+                            linewidth = 1, ls ='--', label = 'TPC'))
+        ax.set_aspect('equal')
+        ax.legend()
+        fig.colorbar(interpolated, ax = ax)
+        if save_fig:
+            plt.savefig('figures/patterns/hex_v0_%d' %hex_id)
+        else:
+            plt.show()
         return None
     
     def fill_grid_from_events(self, counts_pe_on_hex):

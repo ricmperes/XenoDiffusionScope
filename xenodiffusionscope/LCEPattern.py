@@ -19,10 +19,14 @@ class LCEPattern:
         self.TPC = TPC
         self.z_anode = TPC.z_anode
         self.r_max = TPC.radius
+        # Since some sensors stick out of the array, we need to consider
+        # photons ending outside the nominal radius of the TPC in the pattern.
+        self.r_pattern_max = 100
         
         #self.load_patterns()
     
-    def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, smooth_pattern, force_traces = False):
+    def define_pattern_props(self, x_bin_step, y_bin_step, n_traces, 
+                             smooth_pattern, force_traces = False):
         '''
         Call this function to define the pattern calculation properties.
         '''
@@ -50,9 +54,9 @@ class LCEPattern:
     
     def get_xy_on_circ_array(self, final_pos):
         '''Return the x,y positions of the electron cluds ending inside the 
-        radius of the TPC.'''
+        radius to considere for the pattern (TPC + sensors outside).'''
         final_r = TPC.get_r(final_pos[:,0],final_pos[:,1])
-        mask_r = final_r < self.r_max
+        mask_r = final_r < self.r_pattern_max
         final_pos_array = final_pos[mask_r]
         return final_pos_array
     
@@ -86,8 +90,8 @@ class LCEPattern:
         histogram, already normalised to the bin area and number of initial 
         photons.'''
         
-        x_min = y_min = -np.ceil(self.r_max*1.1)
-        x_max = y_max = np.ceil(self.r_max*1.1)
+        x_min = y_min = -np.ceil(self.r_pattern_max*1.1)
+        x_max = y_max = np.ceil(self.r_pattern_max*1.1)
         
         x_bin_sides = np.arange(x_min,x_max+self.x_bin_step*0.1,self.x_bin_step)
         y_bin_sides = np.arange(y_min,y_max+self.x_bin_step*0.1,self.y_bin_step)
@@ -139,23 +143,3 @@ class LCEPattern:
         pattern = self.make_pattern_density(toy_events)
         return pattern
 
-    @staticmethod
-    def plot_pattern(tpc,pattern, hex_id):
-        '''Plot the pattern from a given focusing point.'''
-        fig,ax = plt.subplots(1,1,figsize = (9,9), dpi = 100)
-        ax.set_title('Pattern interpolation\n(spline, k=3)')
-        _x = np.arange(-80,80,1)
-        _y = np.arange(-80,80,1)
-        _xx,_yy = np.meshgrid(_x,_y, indexing='ij')
-        _rr = TPC.get_r(_xx,_yy)
-        _xx = _xx[_rr < tpc.r_max]
-        _yy = _yy[_rr < tpc.r_max]
-        _zz = pattern.ev(_xx,_yy)
-        interpolated = ax.scatter(_xx, _yy, c=np.log10(_zz), marker = 's',
-                                  s = 3, vmin = -6.2)
-
-        ax.add_patch(Circle((0,0),75, color = 'r',fill = False, linewidth = 1, ls ='--'))
-        ax.set_aspect('equal')
-        fig.colorbar(interpolated, ax = ax)
-
-        plt.savefig('figures/patterns/hex_v0_%d' %hex_id)
