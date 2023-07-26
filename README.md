@@ -2,7 +2,8 @@
 
 > R. Peres, Y. Biondi
 
-Code for diffusion studies with Xenoscope, a 2.6m LXe TPC for DARWIN R&D. 
+Code for diffusion studies with Xenoscope, a 2.6m LXe TPC for DARWIN R&D. Check the [docs](https://ricmperes.github.io/XenoDiffusionScope/)!
+
 Initial drift and diffusion [code from Y. Biondi](https://github.com/YaniBion/Diffusion_Xenon).
 
 
